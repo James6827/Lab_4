@@ -1,0 +1,101 @@
+from machine import Pin
+
+# Define LED and button
+led1 = Pin(18, Pin.OUT)
+sw5 = Pin(22, Pin.IN, Pin.PULL_DOWN)
+
+# Loop to check button state and invert LED control
+while True:
+    if sw5.value() != 1:  # LED on when the button is not pressed
+        led1.on()
+    else:  # LED off when the button is pressed
+        led1.off()
+Challenge 2: Control Multiple LEDs with Multiple Buttons
+python
+Copy code
+from machine import Pin
+
+# Define LEDs and buttons
+leds = [Pin(18, Pin.OUT), Pin(19, Pin.OUT), Pin(20, Pin.OUT), Pin(21, Pin.OUT)]
+buttons = [Pin(10, Pin.IN, Pin.PULL_DOWN), Pin(11, Pin.IN, Pin.PULL_DOWN), Pin(12, Pin.IN, Pin.PULL_DOWN), Pin(13, Pin.IN, Pin.PULL_DOWN)]
+
+# Loop to check the buttons and control corresponding LEDs
+while True:
+    for i in range(4):
+        if buttons[i].value() == 1:
+            leds[i].on()
+        else:
+            leds[i].off()
+from machine import Pin
+import time
+
+button = Pin(22, Pin.IN, Pin.PULL_DOWN)
+led = Pin(18, Pin.OUT)
+
+led_state = False
+last_button_state = False
+last_debounce_time = 0
+debounce_delay = 50  # milliseconds
+
+while True:
+    current_button_state = button.value()
+    
+    # Check for button state change
+    if current_button_state != last_button_state:
+        last_debounce_time = time.ticks_ms()  # Reset debounce timer
+
+    # If the debounce delay has passed, toggle the LED
+    if (time.ticks_ms() - last_debounce_time) > debounce_delay:
+        if current_button_state and not last_button_state:  # Detect button press
+            led_state = not led_state
+            led.value(led_state)
+    
+    last_button_state = current_button_state
+    time.sleep(0.01)  # Small delay for stability
+Challenge 2: Control Blinking Interval with Potentiometer
+python
+Copy code
+from machine import Pin, ADC
+import time
+
+adcA = ADC(Pin(26))  # Potentiometer connected to GPIO 26
+led = Pin(18, Pin.OUT)
+
+while True:
+    pot_value = adcA.read_u16()  # Read potentiometer value (0 to 65535)
+    interval = pot_value / 65535 * 2  # Scale to 0 to 2 seconds
+    led.toggle()  # Toggle LED state
+    time.sleep(interval)  # Wait for interval
+Challenge 3: Breathing LED with PWM
+python
+Copy code
+from machine import Pin, PWM
+import time
+
+led = PWM(Pin(18))
+led.freq(1000)  # Set frequency
+
+while True:
+    for duty in range(0, 65535, 64):  # Fade in
+        led.duty_u16(duty)
+        time.sleep(0.01)
+    for duty in range(65535, 0, -64):  # Fade out
+        led.duty_u16(duty)
+        time.sleep(0.01)
+Challenge 4: Progress Bar with LEDs
+python
+Copy code
+from machine import Pin, ADC
+
+adcA = ADC(Pin(26))  # Potentiometer connected to GPIO 26
+leds = [Pin(18, Pin.OUT), Pin(19, Pin.OUT), Pin(20, Pin.OUT), Pin(21, Pin.OUT)]  # Four LEDs
+
+while True:
+    pot_value = adcA.read_u16()  # Read potentiometer value (0 to 65535)
+    progress = int(pot_value / 65535 * 4)  # Convert to number of LEDs (0 to 4)
+
+    for i in range(4):
+        if i < progress:
+            leds[i].on()
+        else:
+            leds[i].off()
